@@ -6,7 +6,8 @@ town. Which taxi should pick up whom, so that the **total distance driven is as 
 - **Explore Mode:** drag anyone along the streets, and the map instantly shows the optimal
   assignment, each taxi's route, and the minimum total distance.
 - **Challenge Mode:** pair taxis with passengers yourself (tap a taxi, then a passenger), then
-  reveal the optimal assignment to see how much distance you could have saved.
+  reveal the optimal assignment to see how much distance you could have saved. **New puzzle**
+  scatters everyone to random places on the streets for a fresh challenge.
 
 Distances are measured in city blocks (the distance between two neighbouring streets).
 

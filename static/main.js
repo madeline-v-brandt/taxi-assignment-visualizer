@@ -114,6 +114,34 @@ svg.addEventListener("pointerdown", (event) => {
   }
 });
 
+// A random place on the streets, in whole map units. Every street is equally long, so picking
+// vertical or horizontal with equal chances spreads points evenly over the whole street network.
+function randomStreetPoint(random) {
+  const pick = (list) => list[Math.floor(random() * list.length)];
+  const between = (lo, hi) => lo + Math.floor(random() * (hi - lo + 1));
+  return random() < 0.5
+    ? { x: pick(STREETS_X), y: between(MIN_Y, MAX_Y) }
+    : { x: between(MIN_X, MAX_X), y: pick(STREETS_Y) };
+}
+
+const MIN_SPACING = 50; // map units between any two icons in a new puzzle, so none overlap
+
+// Challenge Mode: move everyone to random places on the streets and start the challenge afresh.
+function newPuzzle(random = Math.random) {
+  const placed = [];
+  for (const point of [...taxis, ...passengers]) {
+    let candidate;
+    do candidate = randomStreetPoint(random);
+    while (placed.some((q) => Math.hypot(q.x - candidate.x, q.y - candidate.y) < MIN_SPACING));
+    Object.assign(point, candidate);
+    placed.push(candidate);
+  }
+  state.challenge = createChallenge(taxis.length);
+  state.selected = null;
+  state.revealed = false;
+  render();
+}
+
 function setMode(mode) {
   state.mode = mode;
   state.selected = null; // the user's pairs and the reveal are kept, so switching back loses nothing
@@ -239,9 +267,10 @@ $("mode-challenge").addEventListener("click", () => setMode("challenge"));
 $("undo").addEventListener("click", () => { undoPair(state.challenge); state.selected = null; render(); });
 $("clear").addEventListener("click", () => { clearPairs(state.challenge); state.selected = null; render(); });
 $("reveal").addEventListener("click", () => { state.revealed = !state.revealed; render(); });
+$("new-puzzle").addEventListener("click", () => newPuzzle());
 window.addEventListener("resize", render);
 
 // For the tests in tests/: a handle on the app's data and actions.
-window.app = { taxis, passengers, state, handleTap, setMode, render, STREETS_X, STREETS_Y };
+window.app = { taxis, passengers, state, handleTap, setMode, newPuzzle, render, STREETS_X, STREETS_Y, MIN_SPACING };
 
 render();

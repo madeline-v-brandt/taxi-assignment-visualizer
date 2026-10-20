@@ -417,6 +417,38 @@ test("Dragging an icon snaps it onto a street and updates routes; a tap does not
   assertEqual(text(doc, "optimal"), blocks(w.optimalAssignment(w.app.taxis, w.app.passengers).cost), "optimum after the drag");
 });
 
+test("New puzzle: everyone moves to separate random street spots, and the challenge starts afresh", async () => {
+  const { w, doc } = await loadApp();
+  w.app.setMode("challenge");
+  w.optimalAssignment(w.app.taxis, w.app.passengers).sigma.forEach((j, i) => pair(w, i, j));
+  doc.getElementById("reveal").click();
+  w.app.handleTap("taxi", 0);
+
+  for (let round = 0; round < 50; round++) {
+    const before = JSON.stringify([w.app.taxis, w.app.passengers]);
+    doc.getElementById("new-puzzle").click();
+    const points = [...w.app.taxis, ...w.app.passengers];
+    assert(JSON.stringify([w.app.taxis, w.app.passengers]) !== before, "positions did not change");
+    for (const p of points) {
+      assert(Number.isInteger(p.x) && Number.isInteger(p.y), `not whole units: ${JSON.stringify(p)}`);
+      assert(w.app.STREETS_X.includes(p.x) || w.app.STREETS_Y.includes(p.y), `not on a street: ${JSON.stringify(p)}`);
+    }
+    points.forEach((p, a) => points.slice(a + 1).forEach((q) =>
+      assert(Math.hypot(p.x - q.x, p.y - q.y) >= w.app.MIN_SPACING, `icons overlap: ${JSON.stringify([p, q])}`)));
+  }
+  assertEqual(w.app.state.challenge.pairs, [-1, -1, -1, -1, -1], "pairs reset");
+  assert(doc.getElementById("undo").disabled, "undo history reset");
+  assertEqual(w.app.state.selected, null, "selection reset");
+  assertEqual(text(doc, "optimal"), "?", "optimum hidden again");
+  assert(routePoints(doc).every((p) => p === "") && ghostPoints(doc).every((p) => p === ""), "no routes drawn");
+
+  // The new puzzle is a working puzzle: solving it optimally is recognised.
+  w.optimalAssignment(w.app.taxis, w.app.passengers).sigma.forEach((j, i) => pair(w, i, j));
+  doc.getElementById("reveal").click();
+  assert(text(doc, "message").includes("🎉"), "optimal answer to the new puzzle recognised");
+  assertEqual(w.optimalAssignment(w.app.taxis, w.app.passengers).cost, bruteForceMinimum(w), "solver is optimal on the new puzzle");
+});
+
 test("On a phone-sized screen the icons are scaled up for easier tapping", async () => {
   const { doc } = await loadApp(375);
   const transform = doc.querySelector(".marker.taxi").getAttribute("transform");
