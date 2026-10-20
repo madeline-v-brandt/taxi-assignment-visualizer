@@ -1,9 +1,14 @@
 # Taxi Assignment Visualizer
 
 An interactive picture of the **assignment problem**: five taxis and five passengers in a small
-town. Drag any of them along the streets, and the map instantly shows which taxi should pick up
-which passenger so that the **total distance driven is as small as possible**, together with each
-taxi's route.
+town. Which taxi should pick up whom, so that the **total distance driven is as small as possible**?
+
+- **Explore Mode:** drag anyone along the streets, and the map instantly shows the optimal
+  assignment, each taxi's route, and the minimum total distance.
+- **Challenge Mode:** pair taxis with passengers yourself (tap a taxi, then a passenger), then
+  reveal the optimal assignment to see how much distance you could have saved.
+
+Distances are measured in city blocks (the distance between two neighbouring streets).
 
 **Try it:** https://madeline-v-brandt.github.io/taxi-assignment-visualizer/
 
@@ -29,7 +34,9 @@ variant, $O(n^3)$), the same method used by SciPy's
 | `static/style.css` | Colours and styles. |
 | `static/town.js` | Draws the town (roads, river, buildings) and defines the street grid. |
 | `static/assignment.js` | The mathematics: street routes and the assignment solver. |
-| `static/main.js` | Dragging, and redrawing the optimal routes after every move. |
+| `static/challenge.js` | Challenge Mode bookkeeping: the user's pairs, kept one-to-one, with undo. |
+| `static/main.js` | Dragging, tapping, the two modes, the routes and the statistics panel. |
+| `tests/` | Tests that load the real page in a frame and drive it (not part of the published site). |
 | `server.py` | The original Python version of the solver (Flask + SciPy). The website does not use it, but it is handy for checking the JavaScript against SciPy. |
 | `.github/workflows/deploy.yml` | Publishes `static/` to GitHub Pages on every push to `main`. |
 
@@ -43,6 +50,20 @@ python3 -m http.server 8000 --directory static
 ```
 
 then open http://localhost:8000. Press Ctrl+C in the terminal to stop the server.
+
+### Running the tests
+
+From the project folder (not `static/`), run:
+
+```
+python3 -m http.server 8001
+```
+
+then open http://localhost:8001/tests/ in a browser. The page lists every test with ✅ or ❌.
+The tests check the street distances against Dijkstra's algorithm and the solver against
+brute force over all n! assignments. They also drive the app itself: assigning, reassigning,
+undo and clear, revealing the optimum, several equally good optimal answers, switching modes,
+and dragging. The deployment workflow runs the same tests and publishes nothing if one fails.
 
 ### Optional: the Python/SciPy version
 
@@ -58,4 +79,4 @@ using SciPy.
 ## Deployment
 
 Every push to `main` runs the GitHub Actions workflow in `.github/workflows/deploy.yml`, which
-publishes the `static/` folder to GitHub Pages.
+runs the tests and then publishes the `static/` folder to GitHub Pages.

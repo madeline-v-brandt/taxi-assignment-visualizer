@@ -1,6 +1,7 @@
 # Publishes the website to GitHub Pages every time changes are pushed to the main branch.
 # The site is plain HTML/CSS/JS in static/, so there is nothing to compile: the workflow
-# checks that the JavaScript is valid and then uploads the static/ folder as the website.
+# checks that the JavaScript is valid, runs the tests in tests/, and then uploads the
+# static/ folder as the website. If any test fails, nothing is published.
 
 name: Deploy to GitHub Pages
 
@@ -30,7 +31,19 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Check that the JavaScript is valid
-        run: for f in static/*.js; do node --check "$f"; done
+        run: for f in static/*.js tests/*.js; do node --check "$f"; done
+
+      # The tests run in a real browser: serve the project, open tests/ in headless Chrome,
+      # and check the result the test page reports.
+      - name: Run the tests
+        run: |
+          python3 -m http.server 8000 &
+          sleep 2
+          google-chrome --headless=new --no-sandbox --disable-gpu --virtual-time-budget=60000 \
+            --dump-dom http://localhost:8000/tests/ > results.html
+          grep -o '<h2 id="summary"[^<]*' results.html
+          grep -o '<li class="fail">[^<]*' results.html || true
+          grep -q 'data-status="pass"' results.html
 
       - uses: actions/configure-pages@v5
 

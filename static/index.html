@@ -4,21 +4,103 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Taxi Assignment</title>
+  <meta name="description" content="Five taxis, five passengers: which taxi should pick up whom? An interactive puzzle about the assignment problem.">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <h1>Taxi Assignment Problem</h1>
-  <p>Drag the taxis 🚕 and the passengers 👩🏽 along the streets. The dashed lines show the routes
-     of the assignment that minimizes the total distance the taxis must drive.</p>
+  <p class="intro">Five taxis 🚕, five passengers. Which taxi should pick up whom, so that the
+     <strong>total distance driven</strong> is as short as possible? Drag anyone along the streets to change the puzzle.</p>
+
+  <div class="modes" role="group" aria-label="Mode">
+    <button id="mode-explore" class="mode" aria-pressed="true">🔍 Explore</button>
+    <button id="mode-challenge" class="mode" aria-pressed="false">🎯 Challenge</button>
+  </div>
+
+  <!-- The statistics panel. main.js shows the tiles and buttons that belong to the current mode. -->
+  <section class="panel" aria-live="polite">
+    <div class="tiles">
+      <div class="tile" id="tile-yours">
+        <span class="tile-label">Your total</span>
+        <span class="tile-value" id="yours"></span>
+        <span class="tile-note" id="yours-note"></span>
+      </div>
+      <div class="tile">
+        <span class="tile-label" id="optimal-label"></span>
+        <span class="tile-value" id="optimal"></span>
+        <span class="tile-note" id="optimal-note"></span>
+      </div>
+      <div class="tile" id="tile-savings">
+        <span class="tile-label">Optimal saves</span>
+        <span class="tile-value" id="savings"></span>
+        <span class="tile-note" id="savings-note"></span>
+      </div>
+    </div>
+    <p id="message" class="message"></p>
+    <div id="challenge-controls" class="controls">
+      <button id="undo">↶ Undo</button>
+      <button id="clear">Clear</button>
+      <button id="reveal" class="primary">Reveal optimal</button>
+    </div>
+  </section>
 
   <!-- The "map": an SVG drawing area. town.js draws the town; main.js adds the taxis, people and routes. -->
   <svg id="map" viewBox="0 0 600 600"></svg>
+  <p id="route-key" class="route-key">Dashed lines: your routes. Shaded lines: an optimal assignment.</p>
 
-  <p>Total distance: <strong id="total"></strong></p>
+  <details class="math">
+    <summary>What's the math behind this?</summary>
 
-  <!-- Order matters: main.js uses the street grid and helpers from town.js, and the solver from assignment.js. -->
+    <h3>The assignment problem</h3>
+    <p>We have some taxis and the same number of passengers, and each taxi picks up exactly one person.
+       Among all the ways to pair them up, we want the one where the taxis drive the
+       <strong>least distance in total</strong>.</p>
+
+    <h3>Why not just send each taxi to the nearest passenger?</h3>
+    <p>Because the nearest choices can collide, and fixing one collision can cost a lot somewhere else.
+       Picture one long street with taxi A at block 2, taxi B at block 4, and passengers at blocks 0 and 3.
+       The passenger at block 3 is the nearest one for <em>both</em> taxis. If A takes them (1 block),
+       B has to drive 4 blocks to the other passenger: 5 blocks in total. If A instead drives
+       2 blocks to the other passenger, B needs only 1 block: just 3 in total. The best plan isn't
+       always best for each taxi on its own; you have to look at everyone together.</p>
+
+    <h3>Taxicab distance</h3>
+    <p>Taxis can't fly in straight lines; they follow the streets. On a grid, the distance between two
+       points is how far apart they are left-to-right <em>plus</em> how far apart they are up-and-down:
+       |x₁ − x₂| + |y₁ − y₂|. This is the <em>taxicab metric</em>. Here it's measured in city blocks,
+       the distance between two neighbouring streets. One wrinkle: if two people are in the middle of
+       the same block on parallel streets, the taxi must first drive to a corner, so the real route is
+       a little longer than the formula says. This site always uses the real route.</p>
+
+    <h3>As a formula</h3>
+    <p>Write t₁, …, tₙ for the taxis and p₁, …, pₙ for the passengers. A pairing is a
+       <em>permutation</em> σ: taxi i picks up passenger σ(i). We want to</p>
+    <p class="formula">minimize &nbsp;∑<sub>i</sub> d(t<sub>i</sub>, p<sub>σ(i)</sub>)&nbsp; over all permutations σ,</p>
+    <p>where d is the driving distance.</p>
+
+    <h3>How the computer solves it</h3>
+    <p>There are n! possible pairings: 120 for 5 taxis, 3,628,800 for 10, and over 2 quintillion
+       for 20. Trying them all quickly becomes hopeless. Instead, assignment algorithms (the
+       Hungarian algorithm, and the Jonker–Volgenant method this site uses, which is the same one as in the
+       SciPy library) build the best pairing step by step. Along the way they keep a set of "prices" that
+       prove no better pairing exists. They're guaranteed to find the true optimum in roughly n³ steps,
+       without checking all n! pairings.</p>
+
+    <h3>A tropical connection</h3>
+    <p>In <em>tropical</em> (min-plus) arithmetic, "adding" two numbers means taking the smaller one,
+       and "multiplying" means ordinary addition. Rewrite the formula for a determinant with these
+       operations and you get exactly the minimum above: the optimal total is the <em>tropical
+       determinant</em> of the table of distances. That's a lovely link between this puzzle and
+       tropical geometry, but this site computes it with the classical algorithm described above.</p>
+  </details>
+
+  <footer><a href="https://github.com/madeline-v-brandt/taxi-assignment-visualizer">Source code on GitHub</a></footer>
+
+  <!-- Order matters: main.js uses the town and street grid from town.js, the solver from
+       assignment.js, and the Challenge Mode bookkeeping from challenge.js. -->
   <script src="town.js"></script>
   <script src="assignment.js"></script>
+  <script src="challenge.js"></script>
   <script src="main.js"></script>
 </body>
 </html>

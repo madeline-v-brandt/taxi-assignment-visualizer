@@ -92,15 +92,22 @@ function linearSumAssignment(cost) {
   return colForRow;
 }
 
-// taxis and passengers are lists of {x, y}. Returns the total cost and each taxi's route.
+// The route from a taxi to a passenger (both {x, y}) and its length. Both modes measure every
+// trip with this one function, so the user's routes and the optimal routes are always comparable.
+function routeFor(taxi, passenger) {
+  const route = shortestRoute([taxi.x, taxi.y], [passenger.x, passenger.y]);
+  return { route, length: routeLength(route) };
+}
+
+// taxis and passengers are lists of {x, y}. Returns sigma, the total cost and each taxi's route.
 function optimalAssignment(taxis, passengers) {
-  // routes[i][j] = shortest route from taxi i to passenger j; cost[i][j] is its length.
-  const routes = taxis.map((t) => passengers.map((p) => shortestRoute([t.x, t.y], [p.x, p.y])));
-  const cost = routes.map((row) => row.map(routeLength));
+  // trips[i][j] = route from taxi i to passenger j; cost[i][j] is its length.
+  const trips = taxis.map((t) => passengers.map((p) => routeFor(t, p)));
+  const cost = trips.map((row) => row.map((trip) => trip.length));
   const sigma = linearSumAssignment(cost);
   return {
     sigma,
     cost: sigma.reduce((total, j, i) => total + cost[i][j], 0),
-    routes: sigma.map((j, i) => routes[i][j]),
+    routes: sigma.map((j, i) => trips[i][j].route),
   };
 }

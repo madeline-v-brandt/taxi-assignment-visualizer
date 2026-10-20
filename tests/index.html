@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Taxi Assignment Tests</title>
+  <style>
+    body { font-family: sans-serif; max-width: 900px; margin: 20px auto; padding: 0 16px; }
+    li.pass::marker { content: "✅ "; }
+    li.fail::marker { content: "❌ "; }
+    li.fail { color: #b00020; }
+    iframe { width: 600px; height: 1400px; border: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+  <h1>Taxi Assignment Tests</h1>
+  <p>Serve the project folder (not just <code>static/</code>) and open this page:
+     <code>python3 -m http.server 8000</code>, then http://localhost:8000/tests/</p>
+  <h2 id="summary" data-status="running">Running…</h2>
+  <ul id="results"></ul>
+  <!-- The real app is loaded in this frame, and the tests drive it. -->
+  <iframe id="app"></iframe>
+  <script src="tests.js"></script>
+</body>
+</html>
