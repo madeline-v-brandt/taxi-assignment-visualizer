@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Taxi Assignment</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Taxi Assignment Problem</h1>
+  <p>Drag the taxis 🚕 and the passengers 👩🏽 along the streets. The dashed lines show the routes
+     of the assignment that minimizes the total distance the taxis must drive.</p>
+
+  <!-- The "map": an SVG drawing area. town.js draws the town; main.js adds the taxis, people and routes. -->
+  <svg id="map" viewBox="0 0 600 600"></svg>
+
+  <p>Total distance: <strong id="total"></strong></p>
+
+  <!-- Order matters: main.js uses the street grid and helpers from town.js, and the solver from assignment.js. -->
+  <script src="town.js"></script>
+  <script src="assignment.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>

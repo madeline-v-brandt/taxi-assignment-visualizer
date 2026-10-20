@@ -1,0 +1,9 @@
+# Python virtual environment and caches (recreate with: pip install -r requirements.txt)
+.venv/
+__pycache__/
+*.pyc
+
+# macOS and editor clutter
+.DS_Store
+.vscode/
+.idea/

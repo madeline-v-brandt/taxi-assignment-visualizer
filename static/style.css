@@ -1,0 +1,96 @@
+body {
+  font-family: sans-serif;
+  max-width: 640px;
+  margin: 20px auto;
+  padding: 0 16px;
+}
+
+#map {
+  width: 100%;
+  height: auto;
+  border: 1px solid #999;
+  border-radius: 8px;
+  /* Stop the browser from scrolling the page while dragging on touch screens. */
+  touch-action: none;
+}
+
+/* ---- The town (drawn by town.js) ---- */
+
+/* The scenery never reacts to the mouse, so drags always reach the taxis and people.
+   It is also faded, so the taxis, passengers and routes stand out. */
+.town {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.grass { fill: #a8d88a; }
+
+.lot { stroke: #8fbf73; stroke-width: 1; }
+.lot.grass { fill: #bfe3a5; }
+.lot.park  { fill: #8fd06a; }
+.lot.plaza { fill: #ece6da; }
+.lot.city  { fill: #cfd2db; }
+
+.river {
+  fill: none;
+  stroke: #5fa8e8;
+  stroke-width: 36;
+}
+
+.sidewalk {
+  stroke: #d6d3cc;
+  stroke-width: 26;
+  stroke-linecap: square;
+}
+
+.asphalt {
+  stroke: #555a60;
+  stroke-width: 20;
+  stroke-linecap: square;
+}
+
+.centre-line {
+  stroke: #f4d35e;
+  stroke-width: 1.5;
+  stroke-dasharray: 7 7;
+}
+
+.railing {
+  stroke: #8b5a2b;
+  stroke-width: 3;
+}
+
+.label {
+  font-size: 9px;
+  font-weight: bold;
+  fill: #333;
+  text-anchor: middle;
+}
+
+/* Every emoji is centred on its (x, y) position. */
+.emoji {
+  text-anchor: middle;
+  dominant-baseline: central;
+  user-select: none;
+}
+
+/* ---- The taxis, passengers and routes (drawn by main.js) ---- */
+
+/* The route a taxi drives to its assigned passenger (each gets its own colour). */
+.route {
+  fill: none;
+  stroke-width: 3;
+  stroke-dasharray: 6 4;
+  stroke-linejoin: round;
+}
+
+.marker {
+  font-size: 24px;
+  cursor: grab;
+}
+
+/* The coloured ring that tells you which route belongs to which taxi. */
+.ring {
+  stroke-width: 2.5;
+  fill-opacity: 0.35;
+}
